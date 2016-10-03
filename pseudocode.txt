@@ -1,0 +1,121 @@
+
+data structures:
+map grids (two of them, one for user ships, one for CPU ships)
+    10x10, one byte per element
+    for each element
+        color (16*color) ;takes 4 bits
+        foreground 'color' = other info
+        if the 1 bit is set, space is discovered
+        000 in the other three bits indicates that there is not a ship here
+        001 is 2-ship
+        010 is 3-ship number 1
+        011 is 3-ship number 2
+        100 is 4-ship
+        101 is 5-ship
+
+for each user ship and each cpu ship
+    a counter for the number of hits (1 byte)
+
+Procedures:
+
+procedure: placing user ships
+for each ship, starting with the biggest ship
+    be aware of which ship we are placing, so we know the shipcode/length
+    vertical or horizontal?
+    starting (topmost, leftmost) coordinate
+    checks if possible
+        if not possible just ask for a new coordinate
+        repeat until the ship is validly placed
+        if POSSIBLE
+            we still need to know if it is vertical or horizontal, so we can mark the map
+            mark the map in memory with the ship code
+            update the map displayed
+
+procedure: placing CPU ships
+for each ship, starting with the biggest ship
+    see the user ship procedure, except instead of user input, generate random values for coordinates, and to determine the orientation of the ships
+
+procedure: talk to the user
+    change text to a normal color
+    set cursor location
+    display message that was passed 
+
+user turn
+    call user guess
+    print guess result
+    "press any key to continue"
+
+cpu turn
+    call cpu guess
+    print cpu guess result
+    "press any key to continue"
+
+user guess
+    prompt user for a coordinate
+    read in coordiantes
+    check validity
+        if not valid, start again from the top
+        if valid, guess the coordiante (call guess result with our coordinate)
+
+cpu guess
+    easy
+        call a random coord
+        if it would have hit (once per turn)
+            make a new guess
+        guess the coord
+    medium
+        call a random coord
+        guess the coord
+
+    hard
+        call a random coord
+        if it would have missed (once per turn)
+            make a new guess
+        guess the coord
+
+procedure: cpu guess coordinate generation
+generate a random coordinate within the domain
+            check if guessed
+                if guessed
+                    jump to generate a random coordinate
+                if unguessed
+                    return the coordinate
+
+
+procedure: guess result(valid guess coord) 
+                        ;valid = within boundaries, and unrevealed
+    check if hit or miss
+    if hit
+        mark as revealed in the array
+        update that square of the map display
+        increment the hit counter for that ship
+        check if sunk
+            if sunk
+                display a message saying which ship sunk
+                run the endgame check
+            if not sunk
+                do nothing
+    if miss
+        mark as revealed in the array
+        update that square of the map display
+…
+
+
+
+endgame check
+
+main (menu)
+    print the welcome screen
+    run setup
+    alternate user and cpu guesses until the game ends
+    run endgame menu
+
+setup
+    prompt for a username
+    prompt for an AI difficulty (check for validity)
+    run cpu ship placement
+    run user ship placement
+
+endgame menu (play again?)
+    print an endgame message
+    prompt for a replay (maybe let difficulty change)
